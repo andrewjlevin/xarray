@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, cast, overload
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from xarray.core.alignment import broadcast
 from xarray.core.concat import concat
@@ -402,6 +403,7 @@ def line(
     size: float | None = None,
     ax: Axes | None = None,
     hue: Hashable | None = None,
+    cmap: Hashable | None = None,
     x: Hashable | None = None,
     y: Hashable | None = None,
     xincrease: bool | None = None,
@@ -508,7 +510,17 @@ def line(
 
     _ensure_plottable(xplt_val, yplt_val)
 
-    primitive = ax.plot(xplt_val, yplt_val, *args, **kwargs)
+    if hue is not None and cmap is not None:
+         # Normalize the hue values
+        norm = Normalize(vmin=hueplt.min(), vmax=hueplt.max())
+        cmap_instance = plt.get_cmap(cmap).copy()
+        colors = cmap_instance(np.linspace(0, 1, len(hueplt)))
+
+        # Loop through each value and plot separately with a unique color
+        for i, (x_val, y_val) in enumerate(zip(xplt.values, yplt.values)):
+            primitive = ax.plot(x_val, y_val, color=colors[i], *args, **kwargs)
+    else:
+        primitive = ax.plot(xplt_val, yplt_val, *args, **kwargs)
 
     if _labels:
         if xlabel is not None:
