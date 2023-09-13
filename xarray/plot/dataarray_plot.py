@@ -512,7 +512,6 @@ def line(
 
     if hue is not None and cmap is not None:
          # Normalize the hue values
-        norm = Normalize(vmin=hueplt.min(), vmax=hueplt.max())
         cmap_instance = plt.get_cmap(cmap).copy()
         colors = cmap_instance(np.linspace(0, 1, len(hueplt)))
 
